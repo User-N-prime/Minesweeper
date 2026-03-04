@@ -21,7 +21,6 @@ public void setup (){
     Interactive.make( this );
    
     // make 30x16 game grid
-   
     int w = 28;
     for ( int ix = 2, col = 0; ix < width - 4; ix += 30, col++)
     {
@@ -38,6 +37,8 @@ public void draw (){
     int elapsed = 0;
     // win/lose
   if (gameOver) {
+    
+    revealAllMines();
  
     textSize(40);
     fill(255);
@@ -96,15 +97,17 @@ public class SimpleButton{
                 if (r != row || c != col) {
                   numReveal(r, c);
                   checkWin();
+                  if (onGrid(r, c)) {
+                    if (grid[r][c].mine && !grid[r][c].flag)
+                      gameOver = true;
+                  }
                 }
               }
             }
           }
         }
         else if (mine) {
-          on = true;
           gameOver = true;
-          revealAllMines();
         } else {
           reveal(row, col);
           checkWin();
@@ -202,6 +205,7 @@ public void reveal(int row, int col) {
       for (int c = col - 1; c <= col + 1; c++) {
         if (!(r == row && c == col)) {
           reveal(r, c);
+          
         }
       }
     }
