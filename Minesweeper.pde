@@ -35,15 +35,19 @@ public void setup (){
 public void draw (){
   background(0);
     int elapsed = 0;
+    // time ticker
+    if (!firstClick) {
+        elapsed = (millis() - time) / 1000;
+    }
     // win/lose
   if (gameOver) {
-    
-    revealAllMines();
+    if (!win)
+        revealAllMines();
  
     textSize(40);
     fill(255);
  
-    if (win) {
+    else if (win) {
       text("YOU WIN!", 226, 60);
       text("Time: " + elapsed, 678, 60);
     } else {
@@ -52,15 +56,10 @@ public void draw (){
   }
  
   else {
-  // time ticker
-  if (!firstClick) {
-    elapsed = (millis() - time) / 1000;
-  }
-
-  fill(255);
-  textSize(16);
-  text("Time: " + elapsed, 226, 50);
-  text("Flags left: " + (99 - numFlag), 678, 50);
+      fill(255);
+      textSize(16);
+      text("Time: " + elapsed, 226, 50);
+      text("Flags left: " + (99 - numFlag), 678, 50);
   }
 }
 
