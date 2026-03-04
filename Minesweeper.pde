@@ -67,8 +67,8 @@ public void draw (){
 }
 
 public void updateHover() {
-    int row = (mouseX - 2) / 30;
-    int col = (mouseY - 100) / 30;
+    int col = (mouseX - 2) / 30;
+    int row = (mouseY - 100) / 30;
     if (onGrid(row, col)) {
         HOVER_ROW = row;
         HOVER_COL = col;
@@ -167,7 +167,7 @@ public class SimpleButton{
         rect(x, y, width, height);
       }
 
-      if (row == HOVER_ROW && col = HOVER_COL) {
+      if (row == HOVER_ROW && col == HOVER_COL) {
           fill(200);
           rect(x, y, width, height);
       }
@@ -301,8 +301,8 @@ public void revealAllMines() {
 
 public void keyPressed() { 
     if (gameOver) return; 
-    if (!onGrid(hoverRow, hoverCol)) return; 
-    SimpleButton cell = grid[hoverRow][hoverCol]; 
+    if (!onGrid(HOVER_ROW, HOVER_COL)) return; 
+    SimpleButton cell = grid[HOVER_ROW][HOVER_COL]; 
     if (key == 'f' || key == 'F') { 
         cell.press(RIGHT); return;
     }
