@@ -167,8 +167,8 @@ public class SimpleButton{
         rect(x, y, width, height);
       }
 
-      if (row == HOVER_ROW && col == HOVER_COL) {
-          fill(200);
+      if (row == HOVER_ROW && col == HOVER_COL && !on && !flag) {
+          fill(150);
           rect(x, y, width, height);
       }
       if (flag) {
@@ -304,9 +304,14 @@ public void keyPressed() {
     if (!onGrid(HOVER_ROW, HOVER_COL)) return; 
     SimpleButton cell = grid[HOVER_ROW][HOVER_COL]; 
     if (key == 'f' || key == 'F') { 
-        cell.press(RIGHT); return;
+        if (!cell.on) {
+            cell.flag = !cell.flag;
+            if (cell.flag) numFlag++;
+            else numFlag;
+        }
     }
     if (key == 'e' || key == 'E') { 
-        cell.press(LEFT); return; 
+        cell.press(LEFT); 
+        return; 
     } 
 }
