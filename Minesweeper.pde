@@ -46,6 +46,7 @@ public void draw (){
       text("Time: " + elapsed, 678, 60);
     } else {
       text("GAME OVER", width/2, 60);
+      revealAllMines();
     }
   }
  
