@@ -149,6 +149,101 @@ public class SimpleButton{
         rect(x, y, width, height);
         fill(0);
         textSize(12);
+
+        text("F", x + 15, y + 15);
+      }
+    }
+}
+
+public boolean onGrid(int row, int col){
+  return (row >= 0 && row < ROWS && col >= 0 && col < COLS);
+}
+
+public int countMines(int row, int col){
+  int count = 0;
+  for (int r = row - 1; r <= row + 1; r++) {
+    for (int c = col - 1; c <= col + 1; c++) {
+      if (onGrid(r, c) && !(r == row && c == col)) {
+        if (grid[r][c].mine) {
+          count++;
+        }
+      }
+    }
+  }
+  return count;
+}
+
+public int countFlags(int row, int col){
+  int count = 0;
+  for (int r = row - 1; r <= row + 1; r++) {
+    for (int c = col - 1; c <= col + 1; c++) {
+      if (onGrid(r, c) && !(r == row && c == col)) {
+        if (grid[r][c].flag) {
+          count++;
+        }
+      }
+    }
+  }
+  return count;
+}
+
+public void reveal(int row, int col) {
+  if (!onGrid(row, col)) return;
+ 
+  SimpleButton cell = grid[row][col];
+ 
+  if (cell.on || cell.flag) return;
+  if (cell.mine) return;
+ 
+  cell.on = true;
+ 
+  if (countMines(row, col) == 0) {
+    for (int r = row - 1; r <= row + 1; r++) {
+      for (int c = col - 1; c <= col + 1; c++) {
+        if (!(r == row && c == col)) {
+          reveal(r, c);
+        }
+      }
+    }
+  }
+}
+
+public void numReveal(int row, int col) {
+  if (!onGrid(row, col)) return;
+ 
+  SimpleButton cell = grid[row][col];
+ 
+  if (cell.on || cell.flag) return;
+ 
+  cell.on = true;
+ 
+  if (countMines(row, col) == 0) {
+    for (int r = row - 1; r <= row + 1; r++) {
+      for (int c = col - 1; c <= col + 1; c++) {
+        if (!(r == row && c == col) && !cell.mine) {
+          reveal(r, c);
+        }
+      }
+    }
+  }
+}
+
+public void placeMines(int safeRow, int safeCol) {
+  int mines = 99;
+
+  while (mines > 0) {
+    int r = (int)(Math.random() * ROWS);
+    int c = (int)(Math.random() * COLS);
+
+    if (!grid[r][c].mine) {
+      if (Math.abs(r - safeRow) > 1 || Math.abs(c - safeCol) > 1) {
+        grid[r][c].mine = true;
+        mines--;
+      }
+    }
+  }
+}
+
 public void checkWin() {
   int revealed = 0;
  
