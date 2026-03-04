@@ -2,8 +2,6 @@ import de.bezier.guido.*;
 
 public int ROWS = 16;
 public int COLS = 30;
-public int HOVER_ROW = -1;
-public int HOVER_COL = -1;
 
 public boolean firstClick = true;
 
@@ -20,9 +18,9 @@ public SimpleButton[][] grid = new SimpleButton[16][30];
 public void setup (){
     size(904, 580);
     textAlign(CENTER, CENTER);
-   
+
     Interactive.make( this );
-   
+
     // make 30x16 game grid
     int w = 28;
     for ( int ix = 2, col = 0; ix < width - 4; ix += 30, col++)
@@ -32,18 +30,17 @@ public void setup (){
             grid[row][col] = new SimpleButton( ix, iy, w, w, row, col);
         }
     }
-   
+
 }
 
 public void draw (){
   background(0);
-  updateHover();
     // win/lose
   if (gameOver) {
- 
+
     textSize(40);
     fill(255);
- 
+
     if (win) {
       text("YOU WIN!", 226, 60);
       text("Time: " + elapsed, 678, 60);
@@ -52,7 +49,7 @@ public void draw (){
       revealAllMines();
     }
   }
- 
+
   else {
   // time ticker
   if (!firstClick) {
@@ -66,50 +63,32 @@ public void draw (){
   }
 }
 
-public void updateHover() {
-    int col = (mouseX - 2) / 30;
-    int row = (mouseY - 100) / 30;
-    if (onGrid(row, col)) {
-        HOVER_ROW = row;
-        HOVER_COL = col;
-    }
-    else {
-        HOVER_ROW = -1;
-        HOVER_COL = -1;
-    }
-}
-
 public class SimpleButton{
     float x, y, width, height;
     int row, col;
     boolean on;
     boolean flag = false;
     boolean mine = false;
-   
+
     SimpleButton ( float xx, float yy, float w, float h, int r, int c){
         x = xx; y = yy; width = w; height = h;
         row = r; col = c;
-       
+
         Interactive.add( this ); // register it with the manager
     }
-   
-    // called by manager
-   
-    public void mousePressed (){
-        press(mouseButton);
-    }
 
-    public void press(int whichButton) {
+    // called by manager
+
+    void mousePressed (){
       if (gameOver) return;
-    
-      if (whichButton == LEFT && !flag) {
+      // place mines and start timer on first mouse click
+      if (mouseButton == LEFT && !flag) {
         if (firstClick) {
           placeMines(row, col);
           firstClick = false;
           time = millis();
         }
-    
-        // can click revealed tiles to clear out 3x3 surrounding if # mines = # flags
+       // can click revealed tiles to clear out 3x3 surrounding if # mines = # flags
         if (on && countMines(row, col) > 0) {
           if (countFlags(row, col) == countMines(row, col)) {
             for (int r = row - 1; r <= row + 1; r++) {
@@ -126,7 +105,6 @@ public class SimpleButton{
             }
           }
         }
-        // normal reveal / mine hit
         else if (mine) {
           gameOver = true;
         } else {
@@ -134,15 +112,16 @@ public class SimpleButton{
           checkWin();
         }
       }
-    
-      // RIGHT click behavior (toggle flag)
-      else if (whichButton == RIGHT && !on) {
+      // flag a tile
+      if (mouseButton == RIGHT && !on){
         flag = !flag;
-        if (flag) numFlag++;
-        else numFlag--;
+        // counts # flags
+        if (flag)
+          numFlag++;
+        else
+          numFlag--;
       }
     }
-
 
     void draw (){
       if (on){
@@ -167,10 +146,6 @@ public class SimpleButton{
         rect(x, y, width, height);
       }
 
-      if (row == HOVER_ROW && col == HOVER_COL && !on && !flag) {
-          fill(150);
-          rect(x, y, width, height);
-      }
       if (flag) {
         fill(242, 240, 80);
         rect(x, y, width, height);
@@ -180,7 +155,6 @@ public class SimpleButton{
         text("F", x + 15, y + 15);
       }
     }
-
 }
 
 public boolean onGrid(int row, int col){
@@ -217,20 +191,20 @@ public int countFlags(int row, int col){
 
 public void reveal(int row, int col) {
   if (!onGrid(row, col)) return;
- 
+
   SimpleButton cell = grid[row][col];
- 
+
   if (cell.on || cell.flag) return;
   if (cell.mine) return;
- 
+
   cell.on = true;
- 
+
   if (countMines(row, col) == 0) {
     for (int r = row - 1; r <= row + 1; r++) {
       for (int c = col - 1; c <= col + 1; c++) {
         if (!(r == row && c == col)) {
           reveal(r, c);
-          
+
         }
       }
     }
@@ -239,13 +213,13 @@ public void reveal(int row, int col) {
 
 public void numReveal(int row, int col) {
   if (!onGrid(row, col)) return;
- 
+
   SimpleButton cell = grid[row][col];
- 
+
   if (cell.on || cell.flag) return;
- 
+
   cell.on = true;
- 
+
   if (countMines(row, col) == 0) {
     for (int r = row - 1; r <= row + 1; r++) {
       for (int c = col - 1; c <= col + 1; c++) {
@@ -275,14 +249,14 @@ public void placeMines(int safeRow, int safeCol) {
 
 public void checkWin() {
   int revealed = 0;
- 
+
   for (int r = 0; r < ROWS; r++) {
     for (int c = 0; c < COLS; c++) {
       if (grid[r][c].on && !grid[r][c].mine)
         revealed++;
     }
   }
- 
+
   if (revealed == ROWS * COLS - 99) {
     win = true;
     gameOver = true;
@@ -297,21 +271,4 @@ public void revealAllMines() {
       }
     }
   }
-}
-
-public void keyPressed() { 
-    if (gameOver) return; 
-    if (!onGrid(HOVER_ROW, HOVER_COL)) return; 
-    SimpleButton cell = grid[HOVER_ROW][HOVER_COL]; 
-    if (key == 'f' || key == 'F') { 
-        if (!cell.on) {
-            cell.flag = !cell.flag;
-            if (cell.flag) numFlag++;
-            else numFlag;
-        }
-    }
-    if (key == 'e' || key == 'E') { 
-        cell.press(LEFT); 
-        return; 
-    } 
 }
