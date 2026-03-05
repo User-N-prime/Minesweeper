@@ -83,43 +83,11 @@ public class SimpleButton{
       if (gameOver) return;
       // place mines and start timer on first mouse click
       if (mouseButton == LEFT && !flag) {
-        if (firstClick) {
-          placeMines(row, col);
-          firstClick = false;
-          time = millis();
-        }
-       // can click revealed tiles to clear out 3x3 surrounding if # mines = # flags
-        if (on && countMines(row, col) > 0) {
-          if (countFlags(row, col) == countMines(row, col)) {
-            for (int r = row - 1; r <= row + 1; r++) {
-              for (int c = col - 1; c <= col + 1; c++) {
-                if (r != row || c != col) {
-                  numReveal(r, c);
-                  checkWin();
-                  if (onGrid(r, c)) {
-                    if (grid[r][c].mine && !grid[r][c].flag)
-                      gameOver = true;
-                  }
-                }
-              }
-            }
-          }
-        }
-        else if (mine) {
-          gameOver = true;
-        } else {
-          reveal(row, col);
-          checkWin();
-        }
+        bigReveal(this);
       }
       // flag a tile
       if (mouseButton == RIGHT && !on){
-        flag = !flag;
-        // counts # flags
-        if (flag)
-          numFlag++;
-        else
-          numFlag--;
+        toggleFlag(this);
       }
     }
 
@@ -154,11 +122,65 @@ public class SimpleButton{
 
         text("F", x + 15, y + 15);
       }
+      
+      if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height) {
+        noFill();
+        stroke(255);
+        rect(x, y, width, height);
+        noStroke();
+      }
     }
+}
+
+// get what tile mouse hover over
+public SimpleButton getHoveredTile() {
+
+  int col = (mouseX - 2) / 30;
+  int row = (mouseY - 100) / 30;
+
+  if (onGrid(row, col)) {
+    return grid[row][col];
+  }
+
+  return null;
+}
+
+// use getHoverdTile() to reveal/flag tiles with e/f
+public void keyPressed() {
+  if (gameOver) return;
+
+  SimpleButton cell = getHoveredTile();
+  if (cell == null) return;
+
+  // f -> flag
+  if (key == 'f' || key == 'F') {
+    toggleFlag(cell);
+  }
+
+  // e -> reveal
+  if (key == 'e' || key == 'E') {
+    bigReveal(cell);
+  }
 }
 
 public boolean onGrid(int row, int col){
   return (row >= 0 && row < ROWS && col >= 0 && col < COLS);
+}
+
+public void placeMines(int safeRow, int safeCol) {
+  int mines = 99;
+
+  while (mines > 0) {
+    int r = (int)(Math.random() * ROWS);
+    int c = (int)(Math.random() * COLS);
+
+    if (!grid[r][c].mine) {
+      if (Math.abs(r - safeRow) > 1 || Math.abs(c - safeCol) > 1) {
+        grid[r][c].mine = true;
+        mines--;
+      }
+    }
+  }
 }
 
 public int countMines(int row, int col){
@@ -189,13 +211,15 @@ public int countFlags(int row, int col){
   return count;
 }
 
-public void reveal(int row, int col) {
+public void reveal(int row, int col, boolean stopAtMine) {
+
   if (!onGrid(row, col)) return;
 
   SimpleButton cell = grid[row][col];
 
   if (cell.on || cell.flag) return;
-  if (cell.mine) return;
+
+  if (stopAtMine && cell.mine) return;
 
   cell.on = true;
 
@@ -203,48 +227,55 @@ public void reveal(int row, int col) {
     for (int r = row - 1; r <= row + 1; r++) {
       for (int c = col - 1; c <= col + 1; c++) {
         if (!(r == row && c == col)) {
-          reveal(r, c);
-
+          reveal(r, c, stopAtMine);
         }
       }
     }
   }
 }
 
-public void numReveal(int row, int col) {
-  if (!onGrid(row, col)) return;
-
-  SimpleButton cell = grid[row][col];
-
-  if (cell.on || cell.flag) return;
-
-  cell.on = true;
-
-  if (countMines(row, col) == 0) {
-    for (int r = row - 1; r <= row + 1; r++) {
-      for (int c = col - 1; c <= col + 1; c++) {
-        if (!(r == row && c == col) && !cell.mine) {
-          reveal(r, c);
+public void bigReveal(SimpleButton cell) {
+      // place mines and start timer on first mouse click
+    if (!cell.flag) {
+      if (firstClick) {
+        placeMines(cell.row, cell.col);
+        firstClick = false;
+        time = millis();
+      }
+    }
+      // can click revealed tiles to clear out 3x3 surrounding if # mines = # toggleFlag
+      if (cell.on && countMines(cell.row, cell.col) > 0) {
+        if (countFlags(cell.row, cell.col) == countMines(cell.row, cell.col)) {
+          for (int r = cell.row - 1; r <= cell.row + 1; r++) {
+            for (int c = cell.col - 1; c <= cell.col + 1; c++) {
+              if (r != cell.row || c != cell.col) {
+                reveal(r, c, false);
+                checkWin();
+                if (onGrid(r, c)) {
+                  if (grid[r][c].mine && !grid[r][c].flag)
+                    gameOver = true;
+                }
+              }
+            }
+          }
         }
       }
-    }
-  }
+
+      if (cell.mine && !cell.on) {
+        gameOver = true;
+      }
+      else {
+        reveal(cell.row, cell.col, true);
+        checkWin();
+      }
 }
 
-public void placeMines(int safeRow, int safeCol) {
-  int mines = 99;
-
-  while (mines > 0) {
-    int r = (int)(Math.random() * ROWS);
-    int c = (int)(Math.random() * COLS);
-
-    if (!grid[r][c].mine) {
-      if (Math.abs(r - safeRow) > 1 || Math.abs(c - safeCol) > 1) {
-        grid[r][c].mine = true;
-        mines--;
-      }
+public void toggleFlag(SimpleButton cell) {
+      if (!cell.on) {
+      cell.flag = !cell.flag;
+      if (cell.flag) numFlag++;
+      else numFlag--;
     }
-  }
 }
 
 public void checkWin() {
