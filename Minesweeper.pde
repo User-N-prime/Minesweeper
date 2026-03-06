@@ -250,7 +250,7 @@ public void placeMines(SimpleButton cell) {
     int c = (int)(Math.random() * COLS);
 
     if (!cell.mine) {
-      if (Math.abs(r - safeRow) > 1 || Math.abs(c - safeCol) > 1) {
+      if (Math.abs(r - cell.row) > 1 || Math.abs(c - cell.col) > 1) {
         cell.mine = true;
         TOTAL_MINES--;
       }
