@@ -1,4 +1,3 @@
-import de.bezier.guido.*;
 import java.util.Collections;
 
 public int ROWS = 16;
@@ -23,8 +22,6 @@ public void setup (){
     size(904, 580);
     textAlign(CENTER, CENTER);
 
-    Interactive.make( this );
-
     // make 30x16 game grid
     int w = 28;
     for ( int ix = 2, col = 0; ix < width - 4; ix += 30, col++) {
@@ -37,14 +34,25 @@ public void setup (){
 
 }
 
-public void draw (){
+public void draw() {
   background(0);
-    // win/lose
-  if (gameOver) {
 
+  for (int r = 0; r < ROWS; r++) {
+    for (int c = 0; c < COLS; c++) {
+      if (grid[r][c] != null) {
+        grid[r][c].draw();
+      }
+    }
+  }
+
+  if (reButt != null) {
+    reButt.draw();
+  }
+
+  // win/lose messages
+  if (gameOver) {
     textSize(40);
     fill(255);
-
     if (win) {
       text("YOU WIN!", 226, 60);
       text("Time: " + elapsed, 678, 60);
@@ -53,18 +61,17 @@ public void draw (){
       text("GAME OVER", width/2, 60);
       revealAllMines();
     }
-  }
-
+  } 
   else {
-  // time ticker
-  if (!firstClick) {
-    elapsed = (int)((millis() - time) / 1000);
-  }
+    // time ticker
+    if (!firstClick) {
+      elapsed = (int)((millis() - time) / 1000);
+    }
 
-  fill(255);
-  textSize(16);
-  text("Time: " + elapsed, 226, 50);
-  text("Mines left: " + (TOTAL_MINES - numFlag), 678, 50);
+    fill(255);
+    textSize(16);
+    text("Time: " + elapsed, 226, 50);
+    text("Mines left: " + (TOTAL_MINES - numFlag), 678, 50);
   }
 }
 
@@ -79,7 +86,6 @@ public class SimpleButton{
         x = xx; y = yy; width = w; height = h;
         row = r; col = c;
 
-        Interactive.add( this ); // register it with the manager
     }
 
     // called by manager
@@ -138,7 +144,6 @@ public class ResetButton {
     w = ww;
     h = hh;
     
-    Interactive.add(this);
   }
   
     public boolean isInside(float mx, float my) {
