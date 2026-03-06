@@ -1,4 +1,4 @@
-import java.util.Collections;
+import de.bezier.guido.*;
 
 public int ROWS = 16;
 public int COLS = 30;
@@ -22,6 +22,8 @@ public void setup (){
     size(904, 580);
     textAlign(CENTER, CENTER);
 
+    Interactive.make( this );
+
     // make 30x16 game grid
     int w = 28;
     for ( int ix = 2, col = 0; ix < width - 4; ix += 30, col++) {
@@ -29,30 +31,19 @@ public void setup (){
             grid[row][col] = new SimpleButton( ix, iy, w, w, row, col);
         }
     }
-    
+
     reButt = new ResetButton(407, 30, 90, 40);
 
 }
 
-public void draw() {
+public void draw (){
   background(0);
-
-  for (int r = 0; r < ROWS; r++) {
-    for (int c = 0; c < COLS; c++) {
-      if (grid[r][c] != null) {
-        grid[r][c].draw();
-      }
-    }
-  }
-
-  if (reButt != null) {
-    reButt.draw();
-  }
-
-  // win/lose messages
+    // win/lose
   if (gameOver) {
+
     textSize(40);
     fill(255);
+
     if (win) {
       text("YOU WIN!", 226, 60);
       text("Time: " + elapsed, 678, 60);
@@ -61,17 +52,18 @@ public void draw() {
       text("GAME OVER", width/2, 60);
       revealAllMines();
     }
-  } 
-  else {
-    // time ticker
-    if (!firstClick) {
-      elapsed = (int)((millis() - time) / 1000);
-    }
+  }
 
-    fill(255);
-    textSize(16);
-    text("Time: " + elapsed, 226, 50);
-    text("Mines left: " + (TOTAL_MINES - numFlag), 678, 50);
+  else {
+  // time ticker
+  if (!firstClick) {
+    elapsed = (int)((millis() - time) / 1000);
+  }
+
+  fill(255);
+  textSize(16);
+  text("Time: " + elapsed, 226, 50);
+  text("Mines left: " + (TOTAL_MINES - numFlag), 678, 50);
   }
 }
 
@@ -86,6 +78,7 @@ public class SimpleButton{
         x = xx; y = yy; width = w; height = h;
         row = r; col = c;
 
+        Interactive.add( this ); // register it with the manager
     }
 
     // called by manager
@@ -124,7 +117,7 @@ public class SimpleButton{
         textSize(12);
         text("F", x + width/2, y + height/2);
       }
-      
+
       if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height) {
         noFill();
         stroke(255);
@@ -137,15 +130,16 @@ public class SimpleButton{
 // button that resets game
 public class ResetButton {
   int x, y, w, h;
-  
+
   public ResetButton(int xx, int yy, int ww, int hh) {
     x = xx;
     y = yy;
     w = ww;
     h = hh;
-    
+
+    Interactive.add(this);
   }
-  
+
     public boolean isInside(float mx, float my) {
       return mx >= x && mx <= x + width && my >= y && my <= y + height;
     }
@@ -157,7 +151,7 @@ public class ResetButton {
     textSize(16);
     text("RESET", x + w/2, y + h/2);
   }
-  
+
 }
 
 // get what tile mouse hover over
@@ -209,7 +203,7 @@ public void keyPressed() {
   if ((key == 'e' || key == 'E') && !cell.flag) {
     bigReveal(cell);
   }
-  
+
   // f -> flag
   if (key == 'f' || key == 'F') {
     toggleFlag(cell);
@@ -221,36 +215,36 @@ public boolean onGrid(int row, int col){
   return (row >= 0 && row < ROWS && col >= 0 && col < COLS);
 }
 
-public void placeMines(SimpleButton firstCell) {
-  ArrayList<SimpleButton> cells = new ArrayList<SimpleButton>();
+public void placeMines(int safeRow, int safeCol) {
+  int mines = TOTAL_MINES;
 
-  for (int r = 0; r < ROWS; r++) {
-    for (int c = 0; c < COLS; c++) {
-      if (Math.abs(firstCell.row - r) > 1 || Math.abs(firstCell.col - c) > 1)
-        cells.add(grid[r][c]);
+  while (mines > 0) {
+    int r = (int)(Math.random() * ROWS);
+    int c = (int)(Math.random() * COLS);
+
+    if (!grid[r][c].mine) {
+      if (Math.abs(r - safeRow) > 1 || Math.abs(c - safeCol) > 1) {
+        grid[r][c].mine = true;
+        mines--;
+      }
     }
-  }
-  
-  Collections.shuffle(cells);
 
-  for (int i = 0; i < TOTAL_MINES; i++) {
-    cells.get(i).mine = true;
   }
 
 }
 
 public int countMines(int row, int col){
   int count = 0;
-  
+
   for (int r = row - 1; r <= row + 1; r++) {
     for (int c = col - 1; c <= col + 1; c++) {
-      
+
       if (onGrid(r, c) && !(r == row && c == col)) {
         if (grid[r][c].mine) {
           count++;
         }
       }
-      
+
     }
   }
   return count;
@@ -258,16 +252,16 @@ public int countMines(int row, int col){
 
 public int countFlags(int row, int col){
   int count = 0;
-  
+
   for (int r = row - 1; r <= row + 1; r++) {
     for (int c = col - 1; c <= col + 1; c++) {
-      
+
       if (onGrid(r, c) && !(r == row && c == col)) {
         if (grid[r][c].flag) {
           count++;
         }
       }
-      
+
     }
   }
   return count;
@@ -278,27 +272,27 @@ public int countFlags(int row, int col){
 // stopAtMine prevents mines revealed during flood-fill
 public void reveal(int row, int col, boolean stopAtMine) {
   if (!onGrid(row, col)) return;
-  
+
   SimpleButton cell = grid[row][col];
-  
+
   if (cell.on || cell.flag) return;
-  
+
   if (stopAtMine && cell.mine) return;
 
   cell.on = true;
 
   if (countMines(row, col) == 0) {
-    
+
     for (int r = row - 1; r <= row + 1; r++) {
       for (int c = col - 1; c <= col + 1; c++) {
-        
+
         if (!(r == row && c == col)) {
           reveal(r, c, stopAtMine);
         }
-        
+
       }
     }
-    
+
   }
 }
 
@@ -308,35 +302,35 @@ public void reveal(int row, int col, boolean stopAtMine) {
 public void bigReveal(SimpleButton cell) {
   // place mines and start timer on first mouse click
   if (!cell.flag) {
-    
+
     if (firstClick) {
       placeMines(cell);
       firstClick = false;
       time = millis();
     }
-    
+
   }
   // can click revealed tiles to clear out 3x3 surrounding if # mines = # toggleFlag
   if (cell.on && countMines(cell.row, cell.col) > 0) {
     if (countFlags(cell.row, cell.col) == countMines(cell.row, cell.col)) {
-      
+
       for (int r = cell.row - 1; r <= cell.row + 1; r++) {
         for (int c = cell.col - 1; c <= cell.col + 1; c++) {
-          
+
           if (r != cell.row || c != cell.col) {
             reveal(r, c, false);
             checkWin();
-            
+
             if (onGrid(r, c)) {
               if (grid[r][c].mine && !grid[r][c].flag)
                 gameOver = true;
             }
-            
+
           }
-          
+
         }
       }
-      
+
     }
   }
 
@@ -384,6 +378,8 @@ public void revealAllMines() {
 }
 
 public void resetGame() {
+  TOTAL_MINES = 99;
+
   firstClick = true;
 
   time = 0;
