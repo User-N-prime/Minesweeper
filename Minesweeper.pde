@@ -124,6 +124,22 @@ public class SimpleButton{
         if (numMines != 0) {
           fill(0);
           textSize(12);
+          if (numMines == 1)
+            fill(0, 0, 255);
+          else if (numMines == 2)
+            fill(0, 128, 0);
+          else if (numMines == 3)
+            fill(255, 0, 0);
+          else if (numMines == 4)
+            fill(0, 0, 128);
+          else if (numMines == 5)
+            fill(128, 0, 0);
+          else if (numMines == 6)
+            fill(0, 128, 128);
+          else if (numMines == 7)
+            fill(0, 0, 0);
+          else
+            fill(128, 128, 128);
           text(numMines, x + width/2, y + height/2);
         }
         
@@ -176,6 +192,14 @@ public class ResetButton {
     fill(0);
     textSize(16);
     text("RESET", x + w/2, y + h/2);
+
+    if (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h) {
+      noFill();
+      stroke(255);
+      rect(x, y, w, h);
+      noStroke();
+    }
+
   }
 
 }
