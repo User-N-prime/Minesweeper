@@ -1,5 +1,4 @@
 import de.bezier.guido.*;
-import java.util.Collections;
 
 public int ROWS = 16;
 public int COLS = 30;
@@ -244,20 +243,20 @@ public boolean onGrid(int row, int col){
   return (row >= 0 && row < ROWS && col >= 0 && col < COLS);
 }
 
-public void placeMines(SimpleButton firstCell) {
-  ArrayList<SimpleButton> cells = new ArrayList<SimpleButton>();
-  
-  for (int r = 0; r < ROWS; r++) {
-    for (int c = 0; c < COLS; c++) {
-      if (Math.abs(firstCell.row - r) > 1 || Math.abs(firstCell.col - c) > 1)
-        cells.add(grid[r][c]);
+public void placeMines(int safeRow, int safeCol) {
+  int mines = 99;
+
+  while (mines > 0) {
+    int r = (int)(Math.random() * ROWS);
+    int c = (int)(Math.random() * COLS);
+
+    if (!grid[r][c].mine) {
+      if (Math.abs(r - safeRow) > 1 || Math.abs(c - safeCol) > 1) {
+        grid[r][c].mine = true;
+        mines--;
+      }
     }
-  }
-  
-  Collections.shuffle(cells);
-  
-  for (int i = 0; i < TOTAL_MINES; i++) {
-    cells.get(i).mine = true;
+
   }
 
 }
