@@ -85,10 +85,6 @@ public void draw (){
     text("Time: " + elapsed, 226, 50);
     text("Mines left: " + (TOTAL_MINES - numFlag), 678, 50);
     
-    fill(255);
-    textSize(16);
-    text("Time: " + elapsed, 226, 50);
-    text("Mines left: " + (TOTAL_MINES - numFlag), 678, 50);
   }
 }
 
@@ -169,7 +165,7 @@ public class ResetButton {
   }
 
  public boolean isInside(float mx, float my) {
-    return mx >= x && mx <= x + width && my >= y && my <= y + height;
+    return mx >= x && mx <= x + w && my >= y && my <= y + h;
  }
 
   void draw() {
@@ -243,21 +239,23 @@ public boolean onGrid(int row, int col){
   return (row >= 0 && row < ROWS && col >= 0 && col < COLS);
 }
 
-public void placeMines(SimpleButton cell) {
+public void placeMines(SimpleButton first) {
+  int minesToPlace = TOTAL_MINES;
 
-  while (TOTAL_MINES > 0) {
+  while (minesToPlace > 0) {
     int r = (int)(Math.random() * ROWS);
     int c = (int)(Math.random() * COLS);
 
-    if (!cell.mine) {
-      if (Math.abs(r - cell.row) > 1 || Math.abs(c - cell.col) > 1) {
-        cell.mine = true;
-        TOTAL_MINES--;
-      }
-    }
+    SimpleButton cell = grid[r][c];
 
+    if (cell.mine) continue;
+
+    if (Math.abs(r - first.row) <= 1 && Math.abs(c - first.col) <= 1)
+      continue;
+
+    cell.mine = true;
+    minesToPlace--;
   }
-
 }
 
 public int countMines(int row, int col){
@@ -405,7 +403,6 @@ public void revealAllMines() {
 }
 
 public void resetGame() {
-  TOTAL_MINES = 99;
   firstClick = true;
   
   time = 0;
