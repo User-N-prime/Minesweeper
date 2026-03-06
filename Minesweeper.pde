@@ -223,8 +223,8 @@ public void keyPressed() {
   SimpleButton cell = getHoveredTile();
   if (cell == null) return;
   
-  // d -> reveal
-  if ((key == 'd' || key == 'D') && !cell.flag) {
+  // (space key) -> reveal
+  if ((key == ' ') && !cell.flag) {
     bigReveal(cell);
   }
   
