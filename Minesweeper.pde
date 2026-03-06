@@ -60,11 +60,12 @@ public void draw (){
       fill(255);
       
       if (win) {
-        text("YOU WIN!", 226, 60);
-        text("Time: " + elapsed, 678, 60);
+        text("YOU WIN!", 226, 50);
+        text("Time: " + elapsed, 678, 50);
       } 
       else {
-        text("GAME OVER", width/2, 60);
+        text("GAME", 226, 50);
+        text("OVER", 678, 50);
         revealAllMines();
       }
     }
