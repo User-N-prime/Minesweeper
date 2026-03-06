@@ -243,17 +243,16 @@ public boolean onGrid(int row, int col){
   return (row >= 0 && row < ROWS && col >= 0 && col < COLS);
 }
 
-public void placeMines(int safeRow, int safeCol) {
-  int mines = 99;
+public void placeMines(SimpleButton cell) {
 
-  while (mines > 0) {
+  while (TOTAL_MINES > 0) {
     int r = (int)(Math.random() * ROWS);
     int c = (int)(Math.random() * COLS);
 
-    if (!grid[r][c].mine) {
+    if (!cell.mine) {
       if (Math.abs(r - safeRow) > 1 || Math.abs(c - safeCol) > 1) {
-        grid[r][c].mine = true;
-        mines--;
+        cell.mine = true;
+        TOTAL_MINES--;
       }
     }
 
@@ -406,6 +405,7 @@ public void revealAllMines() {
 }
 
 public void resetGame() {
+  TOTAL_MINES = 99;
   firstClick = true;
   
   time = 0;
