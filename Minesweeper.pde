@@ -21,6 +21,7 @@ public ResetButton reButt;
 public void setup (){
   size(904, 580);
   textAlign(CENTER, CENTER);
+  strokeWeight(2);
   
       Interactive.make( this );
   
