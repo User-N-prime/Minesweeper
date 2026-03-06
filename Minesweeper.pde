@@ -187,8 +187,8 @@ public class ResetButton {
 // get what tile mouse hover over
 public SimpleButton getHoveredTile() {
 
-  int col = (mouseX - 2) / 30;
-  int row = (mouseY - 100) / 30;
+  int col = (int)((mouseX - 2) / 30);
+  int row = (int)((mouseY - 100) / 30);
   
   if (onGrid(row, col)) {
     return grid[row][col];
