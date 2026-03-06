@@ -107,6 +107,10 @@ public class SimpleButton{
     Interactive.add( this ); // register it with the manager
   }
 
+ public boolean isInside(float mx, float my) {
+    return mx >= x && mx <= x + width && my >= y && my <= y + height;
+ }
+
   // called by manager
 
   void draw (){
@@ -164,6 +168,10 @@ public class ResetButton {
   
     Interactive.add(this);
   }
+
+ public boolean isInside(float mx, float my) {
+    return mx >= x && mx <= x + width && my >= y && my <= y + height;
+ }
 
   void draw() {
     fill(175);
