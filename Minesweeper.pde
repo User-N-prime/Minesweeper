@@ -438,10 +438,13 @@ public void resetGame() {
   gameOver = false;
   win = false;
   
-  int w = 28;
-  for (int ix = 2, col = 0; ix < width - 4; ix += 30, col++) {
-    for (int iy = 100, row = 0; iy < height - 1; iy += 30, row++) {
-     grid[row][col] = new SimpleButton(ix, iy, w, w, row, col);
+  for (int r = 0; r < ROWS; r++) {
+    for (int c = 0; c < COLS; c++) {
+      SimpleButton cell = grid[r][c];
+
+      cell.on = false;
+      cell.flag = false;
+      cell.mine = false;
     }
   }
 }
